@@ -1,0 +1,4 @@
+Default password: 12345678
+The working day starts at 8am and ends at 5pm.
+Admin enters the basic salary of the employee in VND, do not enter the ".".
+Calculate salary periodically on the 15th of each month.
