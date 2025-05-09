@@ -1,0 +1,36 @@
+/****************************************************************************************************
+Hardware:
+Implemented a control system using Arduino Nano.
+Integrated HC-05 Bluetooth module for wireless communication.
+Used a 5V high/low trigger 2-channel relay module to control external devices.
+Included a 12V DC temperature sensor for environmental monitoring.
+Tools: Arduino IDE and Arduino Bluetooth Control App 
+*****************************************************************************************************/
+#include <SoftwareSerial.h>  
+SoftwareSerial HC05(2, 3); 
+int relay1=8; 
+int relay2=9; 
+void setup() { 
+Serial.begin(115200); 
+HC05.begin(9600); 
+pinMode(relay1,OUTPUT); 
+pinMode(relay2,OUTPUT); 
+digitalWrite(relay1,LOW); 
+digitalWrite(relay2,LOW);} 
+char tem; 
+void loop() { if (HC05.available()); 
+{ tem=HC05.read();} 
+if(tem=='A') 
+{ 
+digitalWrite(relay1,HIGH); 
+Serial.println(tem); 
+} 
+if(tem=='B') 
+{ 
+digitalWrite(relay1,LOW); 
+Serial.println(tem); 
+} 
+if(tem=='C') 
+{ 
+digitalWrite(relay2,HIGH); 
+Serial.println(tem); 
