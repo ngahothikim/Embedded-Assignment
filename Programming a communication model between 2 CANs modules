@@ -1,0 +1,74 @@
+/*******************************************************************************************************************
+Programming a communication model between 2 CANs modules
+Hardware:
+Using 2 Arduino Uno, 2 Modules CAN MCP2515, 1 module DHT11 sensor and 1 LCD I2C
+*******************************************************************************************************************/
+
+#include <SPI.h>          //thư viện giao tiếp bằng SPI 
+#include <mcp2515.h>      //thư viện CAN MCP 2515
+#include <DHT.h> 		//thư viện cảm biến DHT11
+const int DHTPIN = 5;//Chân Out của cảm biến nối chân số 5 Arduino
+const int DHTTYPE = DHT11;   // Khai báo kiểu cảm biến là DHT11
+DHT dht(DHTPIN, DHTTYPE); //Khai báo thư viện chân cảm biến và kiểu cảm biến   
+struct can_frame canMsg; // KHai báo canMsg có kiểu cấu trúc là can_frame
+MCP2515 mcp2515(10); // Khởi tạo chân tín hiệu cho card CAN
+void setup() 
+{
+Serial.begin(9600); //khởi tạo tần số gia tiếp giữa arduino với máy tính
+SPI.begin();               //bắt đầu giao tiếp SPI
+dht.begin();  //bắt đầu giao tiếp cảm biến DHT11
+mcp2515.reset();  //reset lại module CAN
+mcp2515.setBitrate(CAN_500KBPS,MCP_8MHZ); // Đặt tốc độ truyền CAN là 500KBPS và Clock là 8MHz 
+mcp2515.setNormalMode(); // Đặt mô-đun CAN vào chế độ hoạt động bình thường
+canMsg.can_id  = 0x036;        // Đặt ID CAN là 0x036 cho cảm biến độ ẩm
+canMsg.can_dlc = 1;            // Đặt chiều dài dữ liệu CAN là 1 byte}
+void loop() 
+{
+float doam = dht.readHumidity(); //Đọc độ ẩm
+// Kiểm tra cảm biến có hoạt động hay không
+if (isnan(doam)) 
+{
+Serial.println("Không có giá trị trả về từ cảm biến DHT");
+    return;}
+Serial.print("DO AM:");
+Serial.println(doam);  
+canMsg.data[0] =doam ; // Gán giá trị độ ẩm vào mảng dữ liệu CAN 
+mcp2515.sendMessage(&canMsg); // Gửi thông điệp CAN
+delay(200);    // Đợi 200ms trước khi gửi thông điệp tiếp theo}[14]
+Code nhận tín hiệu: khi CAN nhận được tín hiệu arduino sẽ tiến hành kiểm tra và in giá trị ra màng hình
+#include <SPI.h>              
+#include <mcp2515.h>         
+#include <Wire.h> // thư viện i2c
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27,16,2); // Thiết lập địa chỉ LCD là 0x27 với màn hình 16 ký tự và 2 dòng 
+struct can_frame canMsg; 
+MCP2515 mcp2515(10);                 // SPI CS Pin 10 
+void setup() {
+lcd.begin();      // Khởi tạo LCD qua I2C
+lcd.backlight();  // Bật đèn nền của LCD
+delay(1000);
+SPI.begin();                       
+Serial.begin(9600);              
+mcp2515.reset();      
+mcp2515.setBitrate(CAN_500KBPS,MCP_8MHZ);
+mcp2515.setNormalMode();                 
+}
+void loop() 
+{
+lcd.setCursor(1,0);     
+lcd.print("TIN HIEU NHAN");
+if (mcp2515.readMessage(&canMsg) == MCP2515::ERROR_OK) // Đọc dữ liệu CAN
+{
+ if(canMsg.can_id==0x036) //Kiểm tra xem ID CAN có phải là 0x036 không.
+   {
+   int x = canMsg.data[0];  //Lấy giá trị độ ẩm từ dữ liệu CAN.
+   Serial.print("do am: ") ;      
+   Serial.println(x);
+   lcd.setCursor(3,1);     
+   lcd.print("DO AM: ");
+   lcd.print(x);
+   delay(200);
+    }} 
+  else {
+   lcd.setCursor(3,1);     
+   lcd.print("KHONG CO ");  }} [14]                   
