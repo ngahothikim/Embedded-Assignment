@@ -3,6 +3,7 @@
 /* Used DHT11 temperature sensor to continuously monitor ambient temperature and trigger the fan when it exceeded a predefined threshold.
 /* Integrated HC-05 Bluetooth module to enable wireless communication between Arduino and an Android phone.
 /* Controlled the fan via voice commands and manual buttons using the Arduino Bluetooth Control app.
+/* Tools: Arduino IDE 
 *****************************************************************************************************************************************/
 #include <SoftwareSerial.h>  
 SoftwareSerial HC05(2, 3); 
